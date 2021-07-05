@@ -44,6 +44,6 @@ int main()
         }
         while (len = recv(new_s, buf, sizeof(buf), 0))
             fputs(buf, stdout);
-        close(new_s)
+        close(new_s);
     }
 }
