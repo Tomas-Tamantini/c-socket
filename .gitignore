@@ -66,3 +66,6 @@ dkms.conf
 # Ignore all local history of files
 .history
 .ionide
+client14
+.vscode/launch.json
+.vscode/tasks.json
