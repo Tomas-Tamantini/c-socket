@@ -16,7 +16,7 @@ void generateMessage(char *msg, int len)
 {
     msg[len - 1] = '\0';
     for (int i = 0; i < len - 1; i++)
-        msg[i] = 'A';
+        msg[i] = 'A' + (random() % 26);
 }
 
 void runExperiment(int sockfd, struct sockaddr_in servaddr, int msgLen, int numIterations)
@@ -35,17 +35,15 @@ void runExperiment(int sockfd, struct sockaddr_in servaddr, int msgLen, int numI
         n = recvfrom(sockfd, buf_from_server, MAXLINE,
                      MSG_WAITALL, (struct sockaddr *)&servaddr,
                      &n);
-
         if (numIterations < 10)
         {
             printf("\nMessage echoed back from server:\n\t");
             fputs(buf_from_server, stdout); // Make sure message is being received
         }
-        else if (i % 10000 == 0)
+        else if (i % 1 == 0)
         {
-            int current = 10 + i / 1000;
             int total = numIterations / 1000;
-            printf("%dk/%dk\n", current, total); //Print progress
+            printf("%d/%dk\n", i, total); //Print progress
         }
     }
 }
