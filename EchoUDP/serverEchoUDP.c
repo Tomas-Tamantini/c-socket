@@ -9,11 +9,12 @@
 #include <netinet/in.h>
 
 #define PORT 54321
-#define MAXLINE 1024
+#define MAXLINE 32768
 
 // Driver code
 int main()
 {
+    printf("%d", MAXLINE);
     int sockfd;
     char buffer[MAXLINE];
     struct sockaddr_in servaddr, cliaddr;
