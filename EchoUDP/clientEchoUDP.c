@@ -10,7 +10,7 @@
 #include <time.h>
 
 #define PORT 54321
-#define MAXLINE 1024
+#define MAXLINE 32768
 
 void generateMessage(char *msg, int len)
 {
@@ -38,33 +38,49 @@ void runExperiment(int sockfd, struct sockaddr_in servaddr, int msgLen, int numI
 
         if (numIterations < 10)
         {
-            // Make sure message is being received
             printf("\nMessage echoed back from server:\n\t");
-            fputs(buf_from_server, stdout);
+            fputs(buf_from_server, stdout); // Make sure message is being received
         }
-        else
+        else if (i % 10000 == 0)
         {
-            //Print progress
-            if (i % 10000 == 0)
-            {
-                int current = 10 + i / 1000;
-                int total = numIterations / 1000;
-                printf("%dk/%dk\n", current, total);
-            }
+            int current = 10 + i / 1000;
+            int total = numIterations / 1000;
+            printf("%dk/%dk\n", current, total); //Print progress
         }
     }
 }
 
 void runAndTimeExperiments(int sockfd, struct sockaddr_in servaddr)
 {
+    //Setup CSV file and its header
+    FILE *resultsCSV = fopen("experiment_results.csv", "w");
+    fprintf(resultsCSV, "Message size (B); Num iterations; Total time (s)\n");
+
     int numIterations = 100000;
-    int msgLen = 10;
-    clock_t start = clock();
-    runExperiment(sockfd, servaddr, msgLen, numIterations);
-    clock_t end = clock();
-    double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("\nTime taken: %fs", time_taken);
-    return 0;
+    int msgLengths[42];
+    for (int i = 0; i < 42; i++)
+    {
+        if (i == 0)
+            msgLengths[i] = 1;
+        else if (i < 10)
+            msgLengths[i] = 100 * i;
+        else
+            msgLengths[i] = 1024 * (i - 9);
+    }
+
+    for (int i = 0; i < 42; i++)
+    {
+        int msgLen = msgLengths[i];
+        printf("Experiment %d - Message size %dB\n\n", i + 1, msgLen);
+        clock_t start = clock();
+        runExperiment(sockfd, servaddr, msgLen, numIterations);
+        clock_t end = clock();
+        double timeTaken = ((double)(end - start)) / CLOCKS_PER_SEC;
+        printf("Time taken: %fs", timeTaken);
+        printf("\n-----------------------------\n\n");
+        fprintf(resultsCSV, "%d;%d;%f\n", msgLen, numIterations, timeTaken);
+    }
+    fclose(resultsCSV);
 }
 
 // Driver code
@@ -90,4 +106,6 @@ int main()
     servaddr.sin_addr.s_addr = INADDR_ANY;
 
     runAndTimeExperiments(sockfd, servaddr);
+
+    return 0;
 }
