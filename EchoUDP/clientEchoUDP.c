@@ -69,7 +69,7 @@ void runAndTimeExperiments(int sockfd, struct sockaddr_in servaddr)
     FILE *resultsCSV = fopen("experiment_results.csv", "w");
     fprintf(resultsCSV, "Message size (B); Num iterations; Total time (s)\n");
 
-    int numIterations = 100;
+    int numIterations = 100000;
     int msgLengths[42];
     setMessageSizes(msgLengths);
 
