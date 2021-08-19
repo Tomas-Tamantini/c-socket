@@ -50,14 +50,8 @@ void runExperiment(int sockfd, struct sockaddr_in servaddr, int msgLen, int numI
     }
 }
 
-void runAndTimeExperiments(int sockfd, struct sockaddr_in servaddr)
+void setMessageSizes(int *msgLengths)
 {
-    //Setup CSV file and its header
-    FILE *resultsCSV = fopen("experiment_results.csv", "w");
-    fprintf(resultsCSV, "Message size (B); Num iterations; Total time (s)\n");
-
-    int numIterations = 100000;
-    int msgLengths[42];
     for (int i = 0; i < 42; i++)
     {
         if (i == 0)
@@ -67,6 +61,17 @@ void runAndTimeExperiments(int sockfd, struct sockaddr_in servaddr)
         else
             msgLengths[i] = 1024 * (i - 9);
     }
+}
+
+void runAndTimeExperiments(int sockfd, struct sockaddr_in servaddr)
+{
+    //Setup CSV file and its header
+    FILE *resultsCSV = fopen("experiment_results.csv", "w");
+    fprintf(resultsCSV, "Message size (B); Num iterations; Total time (s)\n");
+
+    int numIterations = 100;
+    int msgLengths[42];
+    setMessageSizes(msgLengths);
 
     for (int i = 0; i < 42; i++)
     {
@@ -77,7 +82,7 @@ void runAndTimeExperiments(int sockfd, struct sockaddr_in servaddr)
         clock_t end = clock();
         double timeTaken = ((double)(end - start)) / CLOCKS_PER_SEC;
         printf("Time taken: %fs", timeTaken);
-        printf("\n-----------------------------\n\n");
+        printf("\n-----------------------------\n");
         fprintf(resultsCSV, "%d;%d;%f\n", msgLen, numIterations, timeTaken);
     }
     fclose(resultsCSV);
